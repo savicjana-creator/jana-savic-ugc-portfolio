@@ -338,7 +338,7 @@ export const services = [
 
 export const addons = [
   { label: "AI image creation", description: "Custom AI visual, one final image", price: "100 AED / image", eurPrice: "≈ €24 / image" },
-  { label: "Product photos", description: "Product photography add-on", price: "200 AED", eurPrice: "≈ €48" },
+  { label: "Raw photos", description: "Unedited photos from your content shoot", price: "200 AED", eurPrice: "≈ €48" },
   { label: "Raw footage", description: "Unedited clips from your content shoot", price: "200 AED", eurPrice: "≈ €48" },
   { label: "Paid ads usage rights", description: "Licensing for paid advertising campaigns", price: "Custom quote", eurPrice: "Price on request" },
 ];

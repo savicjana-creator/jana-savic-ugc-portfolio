@@ -1,10 +1,11 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
   Instagram,
   Mail,
   Menu,
+  Play,
   Plus,
   X,
 } from "lucide-react";
@@ -22,14 +23,14 @@ import {
 } from "./content";
 
 const navItems = [
-  ["Studio", "studio"],
-  ["Archive", "archive"],
-  ["AI Lab", "ai-lab"],
-  ["Offers", "offers"],
+  ["Work", "archive"],
+  ["About", "studio"],
+  ["Packages", "offers"],
   ["Process", "process"],
+  ["AI Lab", "ai-lab"],
 ] as const;
 
-const curatedArchiveOrder = ["01", "05", "09", "14", "19", "18", "02", "11", "12", "21", "03", "17", "04", "10", "15", "06", "13", "16", "07", "08", "20", "22"] as const;
+const curatedArchiveOrder = ["01", "05", "06", "14", "15", "16", "07", "18", "02", "03", "04", "08", "09", "11", "12", "17", "10", "13", "19", "20", "21", "22"] as const;
 
 function SectionMark({ number, label }: { number: string; label: string }) {
   return <div className="section-mark"><span>{number}</span><i /><span>{label}</span></div>;
@@ -45,6 +46,23 @@ export default function Home() {
   const [activeFilter, setActiveFilter] = useState<ArchiveKey>("All");
   const [selectedId, setSelectedId] = useState(projects[0].id);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+  const [projectOpen, setProjectOpen] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (projectOpen) {
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      if (!dialog.open) dialog.showModal();
+      return () => {
+        dialog.close();
+        document.body.style.overflow = previousOverflow;
+      };
+    }
+  }, [projectOpen]);
   const visibleProjects = useMemo(
     () => {
       const matchingProjects = activeFilter === "All" ? projects : projects.filter((project) => project.category === activeFilter);
@@ -54,18 +72,20 @@ export default function Home() {
     },
     [activeFilter],
   );
+  const displayedProjects = activeFilter === "All" && !showAll ? visibleProjects.slice(0, 6) : visibleProjects;
   const selectedProject = visibleProjects.find((project) => project.id === selectedId) ?? visibleProjects[0] ?? projects[0];
   const selectedProjectNumber = Math.max(visibleProjects.findIndex((project) => project.id === selectedProject.id) + 1, 1).toString().padStart(2, "0");
 
   const setArchiveFilter = (filter: ArchiveKey) => {
     setActiveFilter(filter);
+    setShowAll(false);
     const firstProject = filter === "All" ? projects[0] : projects.find((project) => project.category === filter);
     if (firstProject) setSelectedId(firstProject.id);
   };
 
   const selectProject = (id: string) => {
     setSelectedId(id);
-    window.setTimeout(() => document.querySelector(".project-panel")?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 30);
+    setProjectOpen(true);
   };
 
   return (
@@ -84,7 +104,7 @@ export default function Home() {
         </button>
       </header>
 
-      <aside className={`mobile-drawer ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
+      <aside className={`mobile-drawer ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen} inert={!menuOpen}>
         {navItems.map(([label, target]) => <a key={target} href={`#${target}`} onClick={() => setMenuOpen(false)}>{label}<ArrowDownRight size={16} /></a>)}
         <a href={profile.instagram} target="_blank" rel="noreferrer" onClick={() => setMenuOpen(false)}><span><Instagram size={17} /> {profile.instagramHandle}</span><ArrowUpRight size={16} /></a>
         <a href={profile.emailHref} onClick={() => setMenuOpen(false)}>Start a project <ArrowUpRight size={16} /></a>
@@ -97,16 +117,16 @@ export default function Home() {
         <div className="hero-meta top-right">EDITION 02<br />2026</div>
         <a className="hero-instagram" href={profile.instagram} target="_blank" rel="noreferrer"><Instagram size={14} /><span>Follow the work</span><strong>{profile.instagramHandle}</strong><ArrowUpRight size={13} /></a>
         <div className="hero-image-frame">
-          <img src={assets.hero} alt="Jana Savić" />
+          <img fetchPriority="high" src={assets.hero} alt="Jana Savić" />
           <div className="hero-image-halo" />
           <div className="image-coordinate">JANA SAVIĆ / DUBAI</div>
         </div>
         <div className="hero-type">
-          <p className="hero-overline">SOCIAL-FIRST / HUMAN-LED / CONVERSION-AWARE</p>
+          <p className="hero-overline">UGC CREATOR / DUBAI / ENGLISH & SERBIAN</p>
           <h1><span>MAKE</span><em>them</em><span>LOOK.</span></h1>
           <div className="hero-foot">
-            <p>Authentic short-form content with a strong visual point of view, made for brands worth noticing.</p>
-            <a href="#archive" className="circle-link" aria-label="Explore selected work"><ArrowDownRight size={24} /></a>
+            <p>Dubai-based UGC creator making beauty, food & lifestyle videos for organic social and paid ads.</p>
+            <div className="hero-actions"><a href="#archive" className="primary-action">Watch my work <Play size={15} /></a><a href={profile.emailHref} className="secondary-action">Discuss your brief <ArrowUpRight size={15} /></a></div>
           </div>
         </div>
         <div className="hero-vertical">FOOD — TRAVEL — BEAUTY — LIFESTYLE — AI</div>
@@ -123,14 +143,68 @@ export default function Home() {
         <a href="#archive">View selected work <ArrowDownRight size={15} /></a>
       </section>
 
+      <section className="archive-section" id="archive">
+        <div className="archive-head">
+          <SectionMark number="01" label="Selected work" />
+          <div><p className="label-copper">PRESS PLAY ON A POINT OF VIEW</p><h2>Real work.<br /><em>Distinct worlds.</em></h2></div>
+          <p className="archive-intro">Start with six selected videos: product stories, beauty demos, lifestyle and unboxing. Tap a frame to watch, or browse the full collection.</p>
+        </div>
+
+        <div className="filter-row" role="group" aria-label="Filter selected work">
+          {archiveFilters.map((filter) => <button key={filter} aria-pressed={activeFilter === filter} type="button" className={activeFilter === filter ? "is-active" : ""} onClick={() => setArchiveFilter(filter)}>{filter}</button>)}
+        </div>
+
+        <div className="archive-grid" id="work-grid">
+          {displayedProjects.map((project, index) => (
+            <article key={project.id} className={`archive-tile ${project.aspect}`} style={{ "--media-ratio": mediaRatio(project.aspect) } as CSSProperties}>
+              <button type="button" onClick={() => selectProject(project.id)} aria-label={`Open ${project.title}`}>
+                <img loading="lazy" decoding="async" src={project.image} alt={project.title} />
+                <span className="tile-shade" />
+                <span className="tile-id">{(index + 1).toString().padStart(2, "0")}</span>
+                <span className="tile-kind">{project.kind}</span>
+                <span className="tile-open">{project.video ? <Play size={18} /> : <Plus size={18} />}</span>
+                <strong>{project.title}</strong>
+              </button>
+            </article>
+          ))}
+        </div>
+
+        {activeFilter === "All" && <button className="archive-toggle" type="button" aria-expanded={showAll} aria-controls="work-grid" onClick={() => {
+          setShowAll(!showAll);
+          if (showAll) document.getElementById("archive")?.scrollIntoView({ block: "start" });
+        }}>{showAll ? "Show selected videos" : "Explore all 22 projects"} <Plus size={16} /></button>}
+
+        <dialog ref={dialogRef} className="project-dialog" aria-labelledby="project-title" onCancel={() => setProjectOpen(false)} onClose={() => setProjectOpen(false)} onClick={(event) => { if (event.target === event.currentTarget) setProjectOpen(false); }}>
+          {projectOpen && <div className="dialog-content">
+            <button type="button" className="dialog-close" onClick={() => setProjectOpen(false)} aria-label="Close project" autoFocus><X size={20} /> Close</button>
+            <article className={`project-panel ${selectedProject.aspect}`}>
+              <div className="project-panel-image">
+                {selectedProject.video ? <video key={selectedProject.id} src={selectedProject.video} controls playsInline preload="metadata" poster={selectedProject.image} aria-label={`Play ${selectedProject.title}`} /> : <img loading="lazy" decoding="async" src={selectedProject.image} alt={selectedProject.title} />}
+              </div>
+              <div className="project-panel-copy">
+                <span>{selectedProjectNumber} / {selectedProject.kind}</span>
+                <h3 id="project-title">{selectedProject.title}</h3>
+                <p>{selectedProject.line}</p>
+                <dl className="project-facts"><div><dt>Category</dt><dd>{selectedProject.category}</dd></div><div><dt>Format</dt><dd>{selectedProject.video ? "Video" : selectedProject.category === "AI" ? "AI visual concept" : "Photography / visual story"}</dd></div></dl>
+                <div className="project-panel-actions">
+                  {selectedProject.instagram && <a href={selectedProject.instagram} target="_blank" rel="noreferrer">{selectedProject.instagram.includes("/jana.ugc.dxb/") ? "View Instagram" : "Open original post"} <ArrowUpRight size={15} /></a>}
+                  <button type="button" onClick={() => selectProject(displayedProjects[(displayedProjects.findIndex((project) => project.id === selectedProject.id) + 1) % displayedProjects.length]?.id ?? projects[0].id)}>Next project <ArrowDownRight size={15} /></button>
+                  <a href={profile.emailHref}>Discuss a similar brief <ArrowUpRight size={15} /></a>
+                </div>
+              </div>
+            </article>
+          </div>}
+        </dialog>
+      </section>
+
       <section className="manifesto section-dark" id="studio">
-        <SectionMark number="01" label="The studio" />
+        <SectionMark number="02" label="The studio" />
         <div className="manifesto-lead">
           <p className="label-copper">BEAUTY WITH A JOB TO DO</p>
           <h2>Good content is not decoration.<br /><em>It is an invitation to care.</em></h2>
         </div>
         <div className="manifesto-detail">
-          <div className="portrait-stamp"><img src={assets.portrait} alt="Jana Savić" /><span>J.S.<br />Dubai</span></div>
+          <div className="portrait-stamp"><img loading="lazy" decoding="async" src={assets.portrait} alt="Jana Savić" /><span>J.S.<br />Dubai</span></div>
           <div>
             <p>I’m Jana — a Dubai-based UGC creator and marketing strategist with 9+ years of experience in content, social media and brand communication. I make work that is composed enough to feel elevated and human enough to stop the scroll.</p>
             <div className="capability-list"><span>Strong hooks</span><span>Story psychology</span><span>Social strategy</span><span>Paid-ready edits</span></div>
@@ -139,51 +213,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="archive-section" id="archive">
-        <div className="archive-head">
-          <SectionMark number="02" label="Selected archive" />
-          <div><p className="label-copper">PRESS PLAY ON A POINT OF VIEW</p><h2>Real work.<br /><em>Distinct worlds.</em></h2></div>
-          <p className="archive-intro">Original UGC video, product photography, travel and lifestyle work. Select a frame to see the format in more detail.</p>
-        </div>
-
-        <div className="filter-row" role="tablist" aria-label="Filter selected work">
-          {archiveFilters.map((filter) => <button key={filter} role="tab" aria-selected={activeFilter === filter} type="button" className={activeFilter === filter ? "is-active" : ""} onClick={() => setArchiveFilter(filter)}>{filter}</button>)}
-        </div>
-
-        <div className="archive-grid">
-          {visibleProjects.map((project, index) => (
-            <article key={project.id} className={`archive-tile ${project.aspect}`} style={{ "--media-ratio": mediaRatio(project.aspect) } as CSSProperties}>
-              <button type="button" onClick={() => selectProject(project.id)} aria-label={`Open ${project.title}`}>
-                <img src={project.image} alt={project.title} />
-                <span className="tile-shade" />
-                <span className="tile-id">{(index + 1).toString().padStart(2, "0")}</span>
-                <span className="tile-kind">{project.kind}</span>
-                <span className="tile-open"><Plus size={18} /></span>
-                <strong>{project.title}</strong>
-              </button>
-            </article>
-          ))}
-        </div>
-
-        <article className={`project-panel ${selectedProject.aspect}`} style={{ "--project-ratio": mediaRatio(selectedProject.aspect) } as CSSProperties} aria-live="polite">
-          <div className="project-panel-image">
-            {selectedProject.video ? <video src={selectedProject.video} controls playsInline preload="metadata" poster={selectedProject.image} aria-label={`Play ${selectedProject.title}`} /> : <img src={selectedProject.image} alt={selectedProject.title} />}
-          </div>
-          <div className="project-panel-copy">
-            <span>{selectedProjectNumber} / {selectedProject.kind}</span>
-            <h3>{selectedProject.title}</h3>
-            <p>{selectedProject.line}</p>
-            <div className="project-panel-actions">
-              {selectedProject.instagram && <a href={selectedProject.instagram} target="_blank" rel="noreferrer">Open original post <ArrowUpRight size={15} /></a>}
-              <button type="button" onClick={() => selectProject(visibleProjects[(visibleProjects.findIndex((project) => project.id === selectedProject.id) + 1) % visibleProjects.length]?.id ?? projects[0].id)}>Next frame <ArrowDownRight size={15} /></button>
-            </div>
-          </div>
-          <div className="project-panel-side">{selectedProject.category.toUpperCase()}<br />/ 2026</div>
-        </article>
-      </section>
-
       <section className="proof-section">
-        <div className="proof-image"><img src={assets.nescafeBottle} alt="Original Nescafé product photography" /><span>THE SUBJECT IS NEVER JUST THE PRODUCT.</span></div>
+        <div className="proof-image"><img loading="lazy" decoding="async" src={assets.nescafeBottle} alt="Original Nescafé product photography" /><span>THE SUBJECT IS NEVER JUST THE PRODUCT.</span></div>
         <div className="proof-copy">
           <p className="label-copper">WHY BRANDS WORK WITH ME</p>
           <h2>Aesthetic draws the eye.<br /><em>Strategy gives it a reason to stay.</em></h2>
@@ -192,27 +223,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="ai-lab-section" id="ai-lab">
-        <div className="ai-lab-head">
-          <SectionMark number="03" label="AI Visual Lab" />
-          <div>
-            <p className="label-copper">EXPERIMENTAL, EDITORIAL, MADE TO BE REMEMBERED</p>
-            <h2>AI is a creative<br /><em>direction, not a filter.</em></h2>
-          </div>
-          <p>Original AI visual concepts for carousel posts, campaign mood, creator content and social-first brand worlds. Each image is clearly presented as an AI visual.</p>
-        </div>
-        <div className="ai-lab-grid">
-          {aiWorks.map((work) => <article key={work.id} className={`ai-work ${work.className}`}>
-            <img src={work.image} alt={work.title} />
-            <span className="ai-work-shade" />
-            <div><span>{work.id} / AI VISUAL</span><h3>{work.title}</h3><p>{work.note}</p></div>
-          </article>)}
-        </div>
-        <div className="ai-lab-foot"><span>AI image creation</span><p>One custom, final AI visual designed around your campaign or content angle.</p><strong>100 AED / image</strong><a href={profile.emailHref}>Ask about AI visuals <ArrowUpRight size={14} /></a></div>
-      </section>
-
       <section className="offers-section" id="offers">
-        <SectionMark number="04" label="Ways to work" />
+        <SectionMark number="03" label="Ways to work" />
         <div className="offers-title"><p className="label-copper">A CLEAR SCOPE. A STRONGER FEED.</p><h2>Content, curated<br /><em>to the brief.</em></h2></div>
         <div className="service-list">
           {services.map((service, index) => <article key={service.name} className={`service-card ${index === 1 ? "featured" : ""}`}>
@@ -226,28 +238,49 @@ export default function Home() {
         <div className="addon-list">
           {addons.map((addon) => <div className="addon-line" key={addon.label}><span>ADD-ON</span><div><b>{addon.label}</b><small>{addon.description}</small></div><strong>{addon.price}<small>{addon.eurPrice}</small></strong></div>)}
         </div>
+        <p className="scope-note">Product photos taken during filming are included as listed. Raw, unedited photos and raw video footage are separate add-ons. Photo quantities, revisions, delivery dates and usage are agreed in your project quote. Paid advertising usage is quoted separately.</p>
         <p className="pricing-note">EUR figures are indicative. Final pricing is confirmed in AED or the agreed project currency.</p>
       </section>
 
       <section className="photo-section">
         <div className="photo-section-top"><p className="label-copper">UGC PHOTOGRAPHY</p><h2>Still life.<br /><em>Real life.</em></h2><p>Image-making for campaigns, menus, launches and the everyday visual library your brand needs between videos.</p></div>
         <div className="photo-scroll">
-          {photoPackages.map((pack) => <article key={pack.title} className="photo-offer"><img src={pack.image} alt={pack.title} /><span>{pack.index}</span><div><h3>{pack.title}</h3><p>{pack.description}</p><a href={profile.emailHref}>Enquire <ArrowUpRight size={14} /></a></div></article>)}
+          {photoPackages.map((pack) => <article key={pack.title} className="photo-offer"><img loading="lazy" decoding="async" src={pack.image} alt={pack.title} /><span>{pack.index}</span><div><h3>{pack.title}</h3><p>{pack.description}</p><a href={profile.emailHref}>Enquire <ArrowUpRight size={14} /></a></div></article>)}
         </div>
       </section>
 
       <section className="process-nocturne" id="process">
-        <div className="process-title"><SectionMark number="05" label="The process" /><h2>From first line<br />to <em>final frame.</em></h2></div>
+        <div className="process-title"><SectionMark number="04" label="The process" /><h2>From first line<br />to <em>final frame.</em></h2></div>
         <div className="process-timeline">
           {processSteps.map(([number, title, description]) => <article key={number}><span>{number}</span><i /><h3>{title}</h3><p>{description}</p></article>)}
         </div>
+      </section>
+
+      <section className="ai-lab-section" id="ai-lab">
+        <div className="ai-lab-head">
+          <SectionMark number="05" label="AI Visual Lab" />
+          <div>
+            <p className="label-copper">EXPERIMENTAL, EDITORIAL, MADE TO BE REMEMBERED</p>
+            <h2>AI is a creative<br /><em>direction, not a filter.</em></h2>
+          </div>
+          <p>Original AI visual concepts for carousel posts, campaign mood, creator content and social-first brand worlds. Each image is clearly presented as an AI visual.</p>
+        </div>
+        <div className="ai-lab-grid">
+          {aiWorks.map((work) => <article key={work.id} className={`ai-work ${work.className}`}>
+            <img loading="lazy" decoding="async" src={work.image} alt={work.title} />
+            <span className="ai-work-shade" />
+            <div><span>{work.id} / AI VISUAL</span><h3>{work.title}</h3><p>{work.note}</p></div>
+          </article>)}
+        </div>
+        <div className="ai-lab-foot"><span>AI image creation</span><p>One custom, final AI visual designed around your campaign or content angle.</p><strong>100 AED / image</strong><a href={profile.emailHref}>Ask about AI visuals <ArrowUpRight size={14} /></a></div>
       </section>
 
       <section className="contact-nocturne" id="contact">
         <div className="contact-monogram">JS</div>
         <p className="label-copper">LET’S MAKE THE NEXT THING UNMISSABLE</p>
         <h2>Have a brief?<br /><em>Let’s give it a pulse.</em></h2>
-        <a href={profile.emailHref} className="contact-button"><Mail size={18} /> Start a conversation <ArrowUpRight size={18} /></a>
+        <a href={profile.emailHref} className="contact-button"><Mail size={18} /> Discuss your brief <ArrowUpRight size={18} /></a>
+        <p className="contact-help">Send your brand, the content you need and your preferred timeline. Let’s shape the brief together.</p>
         <div className="contact-details">
           <a href={profile.emailHref}>{profile.email}</a>
           <a href={profile.instagram} target="_blank" rel="noreferrer"><Instagram size={14} /> {profile.instagramHandle}</a>
