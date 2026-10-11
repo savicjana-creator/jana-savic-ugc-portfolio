@@ -30,7 +30,7 @@ const navItems = [
   ["AI Lab", "ai-lab"],
 ] as const;
 
-const curatedArchiveOrder = ["01", "05", "06", "14", "15", "16", "07", "18", "02", "03", "04", "08", "09", "11", "12", "17", "10", "13", "19", "20", "21", "22"] as const;
+const curatedArchiveOrder = ["01", "23", "05", "06", "14", "15", "16", "07", "18", "02", "03", "04", "08", "09", "11", "12", "17", "10", "13", "19", "20", "21", "22"] as const;
 
 function SectionMark({ number, label }: { number: string; label: string }) {
   return <div className="section-mark"><span>{number}</span><i /><span>{label}</span></div>;

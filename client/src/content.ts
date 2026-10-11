@@ -1,4 +1,6 @@
 export const assets = {
+  videoAplb: "/media/ugc-aplb-texture-in-focus.mp4",
+  coverAplb: "/media/cover-aplb-texture-in-focus.jpg",
   hero: "/media/hero-jana-cutout_382ac0d9.png",
   portrait: "/media/jana-blue-portrait_83c43bb5.webp",
 
@@ -72,6 +74,16 @@ export type ArchiveKey = "All" | "Food" | "Beauty" | "Travel" | "Lifestyle" | "A
 export const archiveFilters: ArchiveKey[] = ["All", "Food", "Beauty", "Travel", "Lifestyle", "AI"];
 
 export const projects = [
+  {
+    id: "23",
+    category: "Beauty" as const,
+    kind: "UGC VIDEO / SKINCARE TEXTURE",
+    title: "APLB / Texture in focus",
+    line: "A close-up look at APLB facial cream, from unboxing to texture details and application.",
+    image: assets.coverAplb,
+    video: assets.videoAplb,
+    aspect: "tall",
+  },
   {
     id: "01",
     category: "Food" as const,
