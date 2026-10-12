@@ -1,4 +1,6 @@
 export const assets = {
+  videoDrMelaxin: "/media/ugc-dr-melaxin-unbox-swatch.mp4",
+  coverDrMelaxin: "/media/cover-dr-melaxin-unbox-swatch.jpg",
   videoAplb: "/media/ugc-aplb-texture-in-focus.mp4",
   coverAplb: "/media/cover-aplb-texture-in-focus.jpg",
   hero: "/media/hero-jana-cutout_382ac0d9.png",
@@ -74,6 +76,16 @@ export type ArchiveKey = "All" | "Food" | "Beauty" | "Travel" | "Lifestyle" | "A
 export const archiveFilters: ArchiveKey[] = ["All", "Food", "Beauty", "Travel", "Lifestyle", "AI"];
 
 export const projects = [
+  {
+    id: "24",
+    category: "Beauty" as const,
+    kind: "UGC VIDEO / UNBOXING & SWATCHES",
+    title: "Dr.Melaxin / Unbox & swatch",
+    line: "A sunlit Dr.Melaxin unboxing with product close-ups, texture swatches and application on the hand.",
+    image: assets.coverDrMelaxin,
+    video: assets.videoDrMelaxin,
+    aspect: "tall",
+  },
   {
     id: "23",
     category: "Beauty" as const,

@@ -30,7 +30,7 @@ const navItems = [
   ["AI Lab", "ai-lab"],
 ] as const;
 
-const curatedArchiveOrder = ["01", "23", "05", "06", "14", "15", "16", "07", "18", "02", "03", "04", "08", "09", "11", "12", "17", "10", "13", "19", "20", "21", "22"] as const;
+const curatedArchiveOrder = ["01", "24", "23", "05", "14", "15", "06", "16", "07", "18", "02", "03", "04", "08", "09", "11", "12", "17", "10", "13", "19", "20", "21", "22"] as const;
 
 function SectionMark({ number, label }: { number: string; label: string }) {
   return <div className="section-mark"><span>{number}</span><i /><span>{label}</span></div>;
@@ -172,7 +172,7 @@ export default function Home() {
         {activeFilter === "All" && <button className="archive-toggle" type="button" aria-expanded={showAll} aria-controls="work-grid" onClick={() => {
           setShowAll(!showAll);
           if (showAll) document.getElementById("archive")?.scrollIntoView({ block: "start" });
-        }}>{showAll ? "Show selected videos" : "Explore all 22 projects"} <Plus size={16} /></button>}
+        }}>{showAll ? "Show selected videos" : `Explore all ${projects.length} projects`} <Plus size={16} /></button>}
 
         <dialog ref={dialogRef} className="project-dialog" aria-labelledby="project-title" onCancel={() => setProjectOpen(false)} onClose={() => setProjectOpen(false)} onClick={(event) => { if (event.target === event.currentTarget) setProjectOpen(false); }}>
           {projectOpen && <div className="dialog-content">
