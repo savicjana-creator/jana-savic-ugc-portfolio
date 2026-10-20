@@ -1,4 +1,6 @@
 export const assets = {
+  videoDrMelaxinReview: "/media/ugc-dr-melaxin-product-review.mp4",
+  coverDrMelaxinReview: "/media/cover-dr-melaxin-product-review.jpg",
   videoDrMelaxin: "/media/ugc-dr-melaxin-unbox-swatch.mp4",
   coverDrMelaxin: "/media/cover-dr-melaxin-unbox-swatch.jpg",
   videoAplb: "/media/ugc-aplb-texture-in-focus.mp4",
@@ -76,6 +78,16 @@ export type ArchiveKey = "All" | "Food" | "Beauty" | "Travel" | "Lifestyle" | "A
 export const archiveFilters: ArchiveKey[] = ["All", "Food", "Beauty", "Travel", "Lifestyle", "AI"];
 
 export const projects = [
+  {
+    id: "25",
+    category: "Beauty" as const,
+    kind: "UGC VIDEO / PRODUCT REVIEW",
+    title: "Dr.Melaxin / Product review",
+    line: "A captioned, creator-led review of four gifted Dr.Melaxin products, with texture close-ups and application demos.",
+    image: assets.coverDrMelaxinReview,
+    video: assets.videoDrMelaxinReview,
+    aspect: "tall",
+  },
   {
     id: "24",
     category: "Beauty" as const,
